@@ -14,6 +14,7 @@ Warning:
     ensure you have proper backups before running this script.
 
 */
+```SQL
 
     --create database 'datawarehouse'
 
@@ -50,4 +51,6 @@ drop schema silver;
 go
 drop schema gold;
 go
+
+```
 
