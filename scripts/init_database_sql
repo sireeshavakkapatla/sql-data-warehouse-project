@@ -21,8 +21,6 @@ Warning:
 
 use master;
 
-create database Datawarehouse;
-use datawarehouse;
 ----------------------------------------------drop and recreate 'datawarehouse database'
 if exists(select 1 from sys.databases where name = 'Datawarehouse')
 begin
@@ -40,6 +38,9 @@ where name = 'Datawarehouse'
 ) then 'exists'
 else 'not exists'
 end as databasestatus;
+
+create database Datawarehouse;
+use datawarehouse;
 -----------------------------------------create schema
 create schema bronze;
 go
@@ -55,5 +56,4 @@ go
 
 
 
-'''
 
