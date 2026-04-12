@@ -244,10 +244,10 @@ SELECT  [sls_ord_num]
   select sls_sales as old_sls_sales,sls_quantity,sls_price as old_price,
   case when sls_sales <=0 or sls_sales is null or sls_sales != (sls_quantity* abs(sls_price)) then (sls_quantity* abs(sls_price)) 
   else sls_sales
-  end sls_sales,
+  end sls_sales,----------------------------------Recalculate sales if original value is missing or incorrect
 	case when sls_price is null or sls_price <=0 then sls_sales/nullif(sls_quantity,0)
 	else sls_price
-	end as sls_price
+	end as sls_price--------------------------------------derive price if original value is invalid
   from bronze.crm_sales_details  
     where sls_sales ! = sls_quantity* sls_price or
   sls_sales is null or sls_quantity is null or sls_price is null
