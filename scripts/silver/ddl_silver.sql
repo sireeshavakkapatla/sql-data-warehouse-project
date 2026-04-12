@@ -75,10 +75,16 @@ SUBCAT nvarchar(50),
 MAINTENANCE nvarchar(10),
 dwh_create_date datetime2 default getdate()
 );
+---------------------------------------------------------------------------------------------------------------------------------------these are changes and transformation for reference
 -----------------check for nulls or duplicates in primary key
 ----------expectation: No result
 select cst_id,count(*) as dupid from bronze.crm_cust_info  group by cst_id having count(*)>1 or cst_id is null;
 
+------------------------------------------------------------------------------------------------------------------------------------------
+print '>>Truncating table : silver.crm_cust_info'------------add these three lines in every table before insert
+Truncate table silver.crm_cust_info;
+print '>>Inserting table : silver.crm_cust_info'
+	
 insert into silver.crm_cust_info(
 cst_id,cst_key,cst_firstname,cst_lastname,cst_marital_status,cst_gndr,cst_created_date
 )
@@ -255,3 +261,59 @@ SELECT  [sls_ord_num]
   order by sls_sales;
 
   select * from silver.crm_sales_details;
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+print '>>Truncating table : erp_cust_az12'------------add these three lines in every table before insert
+Truncate table silver.erp_cust_az12;
+print '>>Inserting table : erp_cust_az12'
+
+insert into silver.erp_cust_az12 (cid,bdate,gen)
+SELECT  
+		case when cid like 'NAS%' then substring(cid,4,len(cid))
+		else cid
+		end cid,
+    case when bdate> getdate() then null 
+	  else bdate end bdate,
+    case when upper(trim(gen)) in ('F','Female') then 'Female'
+		when upper(trim(gen)) in ('M','Male') then 'Male'
+		else 'n/a'
+		end gen
+FROM bronze.erp_cust_az12
+
+  ---------------------------------------------------------------
+  where  bdate >getdate();
+
+  ----------------------------------------------------------------------removing nas check with silver cust
+  where case when cid like 'NAS%' then substring(cid,4,len(cid))
+		else cid
+		end not in (select cst_key from silver.crm_cust_info) ;
+
+  select * from silver.erp_cust_az12 ;
+
+  ------------------------------------------------------------------------------------------------------------------------
+  print '>>Truncating table : erp_loc_a101'------------add these three lines in every table before insert
+Truncate table silver.erp_loc_a101;
+print '>>Inserting table : erp_loc_a101'
+  insert into silver.erp_loc_a101(cid,CNTRY)
+SELECT  
+		replace(CID,'-','')cid,
+	  case when trim(CNTRY) in ('US','USA') then 'United States'
+		   when trim(cntry) = 'DE' then 'Germany' 
+		   when trim(cntry) = '' or cntry is null then 'n/a'
+		   else cntry
+			end cntry
+  FROM [Datawarehouse].[bronze].[erp_loc_a101];
+
+  select * from silver.erp_loc_a101;
+  ----------------------------------------------------------------------------------------------------------------
+    print '>>Truncating table :erp_PX_CAT_G1V2'------------add these three lines in every table before insert
+Truncate table silver.erp_PX_CAT_G1V2;
+print '>>Inserting table : erp_PX_CAT_G1V2'
+  insert into silver.erp_PX_CAT_G1V2(id,cat,subcat,maintenance)
+  SELECT  [ID]
+      ,[CAT]
+      ,[SUBCAT]
+      ,[MAINTENANCE]
+      
+  FROM [Datawarehouse].[bronze].[erp_PX_CAT_G1V2];
+
+  select * from silver.erp_PX_CAT_G1V2;
