@@ -42,23 +42,9 @@ SELECT
   left join silver.erp_cust_az12 ca
   on ci.cst_key = ca.CID
   left join silver.erp_loc_a101 la
-  on ci.cst_key=la.CID 
+  on ci.cst_key=la.CID ;
 
-  ;
 
-  select distinct ci.[cst_gndr],ca.GEN ,
-  case when ci.cst_gndr != 'unknown' then ci.cst_gndr
-  else coalesce(ca.gen,'n/a')
-  end as new_gen
-  FROM [Datawarehouse].[silver].[crm_cust_info] ci
-  left join silver.erp_cust_az12 ca
-  on ci.cst_key = ca.CID
-  left join silver.erp_loc_a101 la
-  on ci.cst_key=la.CID order by 1,2;
-select * from silver.erp_cust_az12; 
-select * from silver.erp_loc_a101;
-delete from [silver].[crm_cust_info] where cst_id is null;
-select distinct gender from gold.dim_customers;
 ----------------------------------------------------------------------------------------------------
 if OBJECT_ID('gold.dim_products','v') is not null
 drop view gold.dim_products;
@@ -107,9 +93,4 @@ go
   left join gold.dim_products pr
   on sd.sls_prd_key = pr.product_number;
 
-  select * from gold.fact_sales s
-  left join gold.dim_customers c
-  on s.customer_key = c.customer_key 
-  left join gold.dim_products p
-  on s.product_key = p.product_key where p.product_key is null;
 
